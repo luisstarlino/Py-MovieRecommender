@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  recommender:
+    build: ./app
+    container_name: movie-recommender
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./app:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
