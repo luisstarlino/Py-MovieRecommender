@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  trainer:
+    build:
+      context: .
+      dockerfile: training/Dockerfile
+    volumes:
+      - ./app:/app/app
+      - ./kaggle_cache:/root/.cache/kagglehub     # ✅ novo volume
+
+
+  web:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./app:/app/app
+    depends_on:
+      - trainer
