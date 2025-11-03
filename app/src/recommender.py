@@ -155,7 +155,12 @@ class HybridRecommender:
 
         # --- Retorna top 10 ---
         filtered = filtered.sort_values("score", ascending=False)
-        top = filtered.head(10)[["title", "score", "avg_rating"]]
+        top = (filtered.head(100)[["title","avg_rating"]]
+                .rename(columns={
+                "movieId": "ID",
+                "title": "TÍTULO",
+                "avg_rating": "ESTRELAS"
+        }))
 
         logging.debug(f"🎬 Top recomendações híbridas (>= {min_rating}):\n{top}")
         return top
