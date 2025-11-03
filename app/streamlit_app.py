@@ -96,12 +96,57 @@ if st.session_state.recommendations is not None:
         st.warning("⚠️ Nenhum filme encontrado com os filtros selecionados.")
     else:
         st.success("✅ Recomendações geradas com sucesso!")
-        for _, row in recommendations.iterrows():
-            cols = st.columns([3, 1])
-            with cols[0]:
-                st.markdown(f"**🎬 {row['title']}**")
-            with cols[1]:
-                st.markdown(f"⭐ {row['score']:.2f}")
+
+        # =======================
+        # Paginação
+        # =======================
+        items_per_page = 10
+        total_items = len(recommendations)
+        total_pages = (total_items - 1) // items_per_page + 1
+
+        # Guarda a página atual na sessão
+        if "current_page" not in st.session_state:
+            st.session_state.current_page = 1
+
+        
+        # Calcula o intervalo de linhas a mostrar
+        start_idx = (st.session_state.current_page - 1) * items_per_page
+        end_idx = start_idx + items_per_page
+        current_data = recommendations.iloc[start_idx:end_idx]
+
+        # =======================
+        # Tabela com todas as opções (paginada)
+        # =======================
+        st.markdown("### 📊 Recomendações encontradas (10 por página)")
+        st.dataframe(current_data, use_container_width=True)
+
+
+        # Controles de navegação
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col1:
+            if st.button("⬅️ Anterior") and st.session_state.current_page > 1:
+                st.session_state.current_page -= 1
+        with col3:
+            if st.button("Próximo ➡️") and st.session_state.current_page < total_pages:
+                st.session_state.current_page += 1
+
+        # Mostra o número da página
+        with col2:
+            st.markdown(
+                f"<div style='text-align:center'>📄 Página {st.session_state.current_page} de {total_pages}</div>",
+                unsafe_allow_html=True
+            )
+
+        # =======================
+        # Botão para baixar CSV completo
+        # =======================
+        csv = recommendations.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="⬇️ Baixar lista completa (Top 100)",
+            data=csv,
+            file_name='recommendacoes.csv',
+            mime='text/csv'
+        )
 
 # =======================
 # Atualiza logs no sidebar sempre
